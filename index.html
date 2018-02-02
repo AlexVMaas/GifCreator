@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Favorite Gifs</title>
+  <style type="text/css">
+    button,
+    div,
+    form,
+    input {
+      margin: 10px;
+    }
+  </style>
+</head>
+
+<body>
+<!-- HTML Section -->
+  <div class="container">
+    
+    <h1>Gif Search</h1>
+
+    <div id="buttons-view"></div>
+
+    <form id="label-form">
+      <label for="label-input">Add a Label </label>
+      <input type="text" id="label-input"><br>
+      <input id="add-label" type="submit" value="Add a Label">
+    </form>
+
+<div class="row">
+
+    <div id="gif-view"></div>
+    </div>
+</div>
+
+<!-- Javascript Section -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript">
+// ------Variables------
+      var labels = ["Kittens", "Puppies", "Babies", "Flowers"];
+
+// ------Functions------
+      function renderGifs() {
+        $("#gif-view").empty();  
+        var apiKey = "0J90emfSxNeYLzIseawtWozE1JVRdXbS"
+        var labelName = $(this).attr("data-name")
+         event.preventDefault();
+        var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + labelName + "&api_key=" + apiKey + "&limit=5";
+          $.ajax({
+          url: queryURL,
+          method: 'GET'
+        }).then (function(response){
+          for (i=0; i<response.data.length; i++) {
+          var a = $("<img>");
+          $(a).attr({
+            "src": response.data[i].images.original_still.url,
+            "data-still": response.data[i].images.original_still.url,
+            "data-animate": response.data[i].images.original.url,
+            "data-state": "still",
+          });
+          a.addClass("gif");
+          $("#gif-view").append("<p> Rating: " + response.data[i].rating + "</p>", a)}
+          console.log(response)
+        })
+      }
+
+      function renderButtons() {
+        $("#buttons-view").empty();
+        for (var i = 0; i < labels.length; i++) {
+          var a = $("<button>");
+          a.addClass("label");
+          a.attr("data-name", labels[i]);
+          a.text(labels[i]);
+          $("#buttons-view").append(a);
+        }
+      }
+
+// ------Event Listeners------
+      $("#add-label").on("click", function(event) {
+        event.preventDefault();
+        var gif = $("#label-input").val().trim();
+        labels.push(gif);
+        renderButtons();
+      });
+
+      $("#buttons-view").on("click", ".label", renderGifs);
+
+      $(document).on("click", ".gif", function() {
+        var state = $(this).attr("data-state")
+        if (state == "still") {
+          $(this).attr("src", $(this).attr("data-animate"));
+          $(this).attr("data-state", "animate")
+        } else {
+          $(this).attr("src", $(this).attr("data-still"));
+          $(this).attr("data-state", "still")
+        }
+      });
+
+// ------On Page Load------
+      renderButtons();
+
+    </script>
+  </div>
+</body>
+
+</html>
